@@ -1,0 +1,91 @@
+{
+	"name": "svelte-session",
+	"version": "1.0.0",
+	"private": false,
+	"description": "SvelteKit session client for cookie-backed refresh sessions and in-memory access tokens",
+	"keywords": [
+		"svelte",
+		"sveltekit",
+		"auth",
+		"session",
+		"jwt",
+		"refresh-token"
+	],
+	"homepage": "https://github.com/Reginleif-Web/SvelteSession/tree/main/SvelteSession#readme",
+	"bugs": {
+		"url": "https://github.com/Reginleif-Web/SvelteSession/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Reginleif-Web/SvelteSession.git",
+		"directory": "SvelteSession"
+	},
+	"license": "ISC",
+	"author": "Reginleif Web",
+	"type": "module",
+	"sideEffects": [
+		"**/*.css"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"types": "./dist/index.d.ts",
+	"svelte": "./src/index.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./src/index.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./server": {
+			"types": "./dist/server.d.ts",
+			"import": "./dist/server.js",
+			"default": "./dist/server.js"
+		},
+		"./types": {
+			"types": "./dist/types.d.ts",
+			"import": "./dist/types.js",
+			"default": "./dist/types.js"
+		}
+	},
+	"typesVersions": {
+		">4.0": {
+			"server": [
+				"./dist/server.d.ts"
+			],
+			"types": [
+				"./dist/types.d.ts"
+			]
+		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	],
+	"scripts": {
+		"build": "svelte-package -i src -o dist",
+		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"ci": "npm run check && npm run build",
+		"pack:dry-run": "npm pack --dry-run",
+		"prepack": "npm run build",
+		"prepublishOnly": "npm run ci"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"provenance": true
+	},
+	"peerDependencies": {
+		"svelte": "^5.0.0"
+	},
+	"devDependencies": {
+		"@sveltejs/package": "^2.5.7",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"svelte": "^5.55.2",
+		"svelte-check": "^4.4.6",
+		"typescript": "^5.8.3"
+	}
+}
