@@ -59,14 +59,14 @@ function mergeConfig(config: AuthConfig) {
 export function configureAuth(config: AuthConfig): void {
 	const authUrl = config.authUrl.trim().replace(/\/$/, '');
 	if (!authUrl) {
-		throw new Error('SvelteSession: authUrl is required in config');
+		throw new Error('svelte-session: authUrl is required in config');
 	}
 	resolvedConfig = { ...mergeConfig(config), authUrl };
 }
 
 export function getAuthConfig(): ResolvedAuthConfig {
 	if (!resolvedConfig) {
-		throw new Error('SvelteSession: pass config to SessionProvider or getServerSession');
+		throw new Error('svelte-session: pass config to SessionProvider or getServerSession');
 	}
 	return resolvedConfig;
 }

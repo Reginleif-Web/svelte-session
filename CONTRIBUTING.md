@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for taking the time to improve `SvelteSession`.
+Thanks for taking the time to improve `svelte-session`.
 
 ## Development
 
@@ -13,7 +13,7 @@ npm install
 Run package checks:
 
 ```sh
-cd SvelteSession
+cd svelte-session
 npm run check
 npm run build
 ```

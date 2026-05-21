@@ -52,14 +52,14 @@ export async function loginClientSession(credentials: AuthData): Promise<{
 	error?: { code: string; message: string };
 }> {
 	const { result } = await identityAuth(credentials);
-	if (!result.success || !result.data) {
+	if (!result.success) {
 		clearAccessToken();
 		return {
 			ok: false,
 			user: null,
 			accessToken: null,
 			expiresInSec: 0,
-			error: result.error ?? { code: 'unknown_error', message: 'Login failed' }
+			error: result.error
 		};
 	}
 
