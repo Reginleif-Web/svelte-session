@@ -1,6 +1,6 @@
 {
 	"name": "svelte-session",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"private": false,
 	"description": "SvelteKit session client for cookie-backed refresh sessions and in-memory access tokens",
 	"keywords": [
@@ -28,33 +28,44 @@
 	"engines": {
 		"node": ">=20"
 	},
-	"types": "./dist/index.d.ts",
-	"svelte": "./src/index.ts",
+	"types": "./dist/entrypoints/client.d.ts",
+	"svelte": "./src/entrypoints/client.ts",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"svelte": "./src/index.ts",
-			"import": "./dist/index.js",
-			"default": "./dist/index.js"
+			"types": "./dist/entrypoints/client.d.ts",
+			"svelte": "./src/entrypoints/client.ts",
+			"import": "./dist/entrypoints/client.js",
+			"default": "./dist/entrypoints/client.js"
 		},
 		"./server": {
-			"types": "./dist/server.d.ts",
-			"import": "./dist/server.js",
-			"default": "./dist/server.js"
+			"types": "./dist/entrypoints/server.d.ts",
+			"import": "./dist/entrypoints/server.js",
+			"default": "./dist/entrypoints/server.js"
+		},
+		"./core": {
+			"types": "./dist/entrypoints/core.d.ts",
+			"import": "./dist/entrypoints/core.js",
+			"default": "./dist/entrypoints/core.js"
 		},
 		"./types": {
-			"types": "./dist/types.d.ts",
-			"import": "./dist/types.js",
-			"default": "./dist/types.js"
+			"types": "./dist/entrypoints/types.d.ts",
+			"import": "./dist/entrypoints/types.js",
+			"default": "./dist/entrypoints/types.js"
 		}
 	},
 	"typesVersions": {
 		">4.0": {
+			"core": [
+				"./dist/entrypoints/core.d.ts"
+			],
 			"server": [
-				"./dist/server.d.ts"
+				"./dist/entrypoints/server.d.ts"
 			],
 			"types": [
-				"./dist/types.d.ts"
+				"./dist/entrypoints/types.d.ts"
+			],
+			"index.d.ts": [
+				"./dist/entrypoints/client.d.ts"
 			]
 		}
 	},

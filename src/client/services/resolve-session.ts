@@ -1,12 +1,18 @@
-import type { AuthData } from '../contracts.js';
-import type { SessionUser } from '../types.js';
-import { identityAuth, identityCheck, identityLogout, identityRefresh } from '../api/identity-api.js';
+import type { AuthData } from '../../shared/contracts.js';
+import type { SessionUser } from '../../shared/types.js';
+import {
+	identityAuth,
+	identityCheck,
+	identityLogout,
+	identityRefresh
+} from '../../shared/api/identity.js';
+import { getAuthConfig } from '../../shared/config.js';
 import {
 	clearAccessToken,
 	getAccessToken,
 	isAccessTokenExpired,
 	setAccessToken
-} from './access-token-store.js';
+} from '../state/access-token-store.js';
 
 export type ResolvedSession = {
 	user: SessionUser | null;
@@ -27,6 +33,12 @@ export async function resolveClientSession(): Promise<ResolvedSession> {
 				};
 			}
 		}
+	}
+
+	const { paths } = getAuthConfig();
+	if (!paths.refresh) {
+		clearAccessToken();
+		return { user: null, accessToken: null, expiresInSec: 0 };
 	}
 
 	const { result } = await identityRefresh();

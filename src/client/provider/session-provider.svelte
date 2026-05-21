@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { configureAuth, getAuthConfig, type AuthConfig } from './config.js';
-	import { initSession } from './lib/session.js';
-	import { hydrateSession } from './lib/session-state.svelte.js';
-	import { setAccessToken } from './lib/access-token-store.js';
-	import type { SessionUser } from './types.js';
+	import { configureAuth, getAuthConfig, type AuthConfig } from '../../shared/config.js';
+	import { initSession } from '../services/session.js';
+	import { hydrateSession } from '../state/session-state.svelte.js';
+	import { setAccessToken } from '../state/access-token-store.js';
+	import type { SessionUser } from '../../shared/types.js';
 
 	export type ProviderSession = {
 		user: SessionUser | null;

@@ -1,7 +1,13 @@
-import { configureAuth, type AuthConfig } from './config.js';
-import { getAccessToken } from './lib/access-token-store.js';
-import { getSession, refresh, refreshTokens, signIn, signOut } from './lib/session.js';
-import { getServerSession } from './server/get-server-session.js';
+import { configureAuth, type AuthConfig } from '../shared/config.js';
+import { getAccessToken } from '../client/state/access-token-store.js';
+import {
+	getSession,
+	refresh,
+	refreshTokens,
+	signIn,
+	signOut
+} from '../client/services/session.js';
+import { getServerSession } from '../server/session/get-server-session.js';
 
 let initialized = false;
 

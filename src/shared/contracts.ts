@@ -5,13 +5,13 @@ export type ApiError = {
 
 export type ApiResponse<T> =
 	| {
-		success: true;
-		data: T;
-	}
+			success: true;
+			data: T;
+	  }
 	| {
-		success: false;
-		error: ApiError;
-	};
+			success: false;
+			error: ApiError;
+	  };
 
 export type AuthData = {
 	login: string;

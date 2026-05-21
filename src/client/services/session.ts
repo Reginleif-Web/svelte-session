@@ -1,14 +1,14 @@
-import type { AuthData } from '../contracts.js';
-import type { ClientSession } from '../types.js';
-import { getAuthConfig } from '../config.js';
+import type { AuthData } from '../../shared/contracts.js';
+import type { ClientSession } from '../../shared/types.js';
+import { getAuthConfig } from '../../shared/config.js';
 import {
 	clearAccessToken,
 	getAccessTokenExpiresInSec,
 	setAccessToken
-} from './access-token-store.js';
+} from '../state/access-token-store.js';
 import { loginClientSession, logoutClientSession, resolveClientSession } from './resolve-session.js';
 import type { ResolvedSession } from './resolve-session.js';
-import { applySession, sessionState, setSessionLoading } from './session-state.svelte.js';
+import { applySession, sessionState, setSessionLoading } from '../state/session-state.svelte.js';
 
 let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -20,9 +20,15 @@ function clearRefreshTimer(): void {
 }
 
 function scheduleAccessTokenRefresh(expiresInSec: number): void {
-	const { session } = getAuthConfig();
+	const { paths, session } = getAuthConfig();
 	clearRefreshTimer();
 	if (expiresInSec <= 0) {
+		return;
+	}
+	if (!paths.refresh) {
+		refreshTimer = setTimeout(() => {
+			commitSession({ user: null, accessToken: null, expiresInSec: 0 });
+		}, expiresInSec * 1000);
 		return;
 	}
 	const delayMs = Math.max(expiresInSec * 1000 - session.refreshBeforeExpiryMs, 5_000);
@@ -98,6 +104,11 @@ export async function initSession(): Promise<void> {
 		if (expiresInSec > 0) {
 			scheduleAccessTokenRefresh(expiresInSec);
 		}
+		return;
+	}
+	const { paths } = getAuthConfig();
+	if (!paths.refresh) {
+		commitSession({ user: null, accessToken: null, expiresInSec: 0 });
 		return;
 	}
 	setSessionLoading();

@@ -1,6 +1,6 @@
-import { configureAuth, getAuthConfig, type AuthConfig } from '../config.js';
-import type { ServerSession } from '../types.js';
-import { identitySession } from '../api/identity-api.js';
+import { configureAuth, getAuthConfig, type AuthConfig } from '../../shared/config.js';
+import type { ServerSession } from '../../shared/types.js';
+import { identitySession } from '../../shared/api/identity.js';
 
 export async function getServerSession(
 	event: { request: Request },

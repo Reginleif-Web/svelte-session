@@ -1,4 +1,4 @@
-import type { ClientSession, SessionUser } from '../types.js';
+import type { ClientSession, SessionUser } from '../../shared/types.js';
 
 export const sessionState = $state<ClientSession>({
 	status: 'loading',
