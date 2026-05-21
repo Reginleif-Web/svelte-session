@@ -21,13 +21,20 @@
 		children: import('svelte').Snippet;
 	} = $props();
 
-	configureAuth(config);
+	function initializeProvider(config: AuthConfig, session: ProviderSession | null): void {
+		configureAuth(config);
 
-	hydrateSession(session?.user ?? null, session?.accessToken ?? null);
+		hydrateSession(session?.user ?? null, session?.accessToken ?? null);
 
-	if (session?.accessToken && session?.user) {
-		setAccessToken(session.accessToken, getAuthConfig().session.defaultAccessTokenTtlSec);
+		if (session?.accessToken && session?.user) {
+			setAccessToken(session.accessToken, getAuthConfig().session.defaultAccessTokenTtlSec);
+		}
 	}
+
+	const getInitialConfig = () => config;
+	const getInitialSession = () => session;
+
+	initializeProvider(getInitialConfig(), getInitialSession());
 
 	onMount(() => {
 		void initSession();

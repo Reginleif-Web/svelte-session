@@ -3,11 +3,15 @@ export type ApiError = {
 	message: string;
 };
 
-export type ApiResponse<T> = {
-	success: boolean;
-	data: T | null;
-	error: ApiError | null;
-};
+export type ApiResponse<T> =
+	| {
+		success: true;
+		data: T;
+	}
+	| {
+		success: false;
+		error: ApiError;
+	};
 
 export type AuthData = {
 	login: string;

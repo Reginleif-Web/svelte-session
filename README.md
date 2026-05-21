@@ -1,4 +1,4 @@
-# SvelteSession
+# svelte-session
 
 SvelteKit session helpers for applications that use short-lived access tokens and a cookie-backed refresh session.
 
@@ -28,7 +28,7 @@ npm install svelte
 
 The package expects the backend to own the refresh session through an httpOnly cookie. The frontend receives short-lived access tokens and keeps them only in memory.
 
-`SvelteSession` deliberately does not validate passwords, sign JWTs, store refresh tokens, or decide cookie policy. Those responsibilities stay on your backend. The package only coordinates SvelteKit SSR, browser state, access-token refresh, and calls to your configured identity endpoints.
+`svelte-session` deliberately does not validate passwords, sign JWTs, store refresh tokens, or decide cookie policy. Those responsibilities stay on your backend. The package only coordinates SvelteKit SSR, browser state, access-token refresh, and calls to your configured identity endpoints.
 
 The two tokens have different jobs:
 
@@ -71,7 +71,7 @@ Create an auth config:
 
 ```ts
 // src/auth.config.ts
-import type { AuthConfig } from 'SvelteSession';
+import type { AuthConfig } from 'svelte-session';
 
 const authConfig: AuthConfig = {
 	authUrl: 'http://localhost:3000',
@@ -101,7 +101,7 @@ Load the session on the server:
 ```ts
 // src/hooks.server.ts
 import type { Handle } from '@sveltejs/kit';
-import { getServerSession } from 'SvelteSession/server';
+import { getServerSession } from 'svelte-session/server';
 import authConfig from './auth.config';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -141,7 +141,7 @@ Wrap your app:
 ```svelte
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
-	import { SessionProvider } from 'SvelteSession';
+	import { SessionProvider } from 'svelte-session';
 	import authConfig from '../auth.config';
 
 	let { children, data } = $props();
@@ -156,7 +156,7 @@ Use the client helpers:
 
 ```svelte
 <script lang="ts">
-	import { getSession, signIn, signOut } from 'SvelteSession';
+	import { getSession, signIn, signOut } from 'svelte-session';
 
 	const session = getSession();
 
@@ -186,7 +186,7 @@ import {
 	refreshTokens,
 	signIn,
 	signOut
-} from 'SvelteSession';
+} from 'svelte-session';
 ```
 
 Useful exported types:
@@ -199,13 +199,13 @@ import type {
 	CheckSessionResponseData,
 	RefreshResponseData,
 	SessionResponseData
-} from 'SvelteSession';
+} from 'svelte-session';
 ```
 
 ### Server exports
 
 ```ts
-import { getServerSession } from 'SvelteSession/server';
+import { getServerSession } from 'svelte-session/server';
 ```
 
 ### `AuthConfig`
@@ -240,11 +240,20 @@ The package is backend-agnostic. Your backend can be implemented with Hono, Svel
 All endpoints should return JSON in this envelope:
 
 ```ts
-type ApiResponse<T> = {
-	success: boolean;
-	data: T | null;
-	error: { code: string; message: string } | null;
+type ApiError = {
+	code: string;
+	message: string;
 };
+
+type ApiResponse<T> =
+	| {
+		success: true;
+		data: T;
+	}
+	| {
+		success: false;
+		error: ApiError;
+	};
 ```
 
 ### `POST auth`

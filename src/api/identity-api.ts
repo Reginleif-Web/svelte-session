@@ -20,7 +20,6 @@ function requestCredentials(serverCookieHeader?: string): RequestCredentials | u
 function requestFailed<T>(code: string, message: string): T {
 	return {
 		success: false,
-		data: null,
 		error: { code, message }
 	} as T;
 }

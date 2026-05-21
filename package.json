@@ -1,6 +1,6 @@
 {
 	"name": "svelte-session",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"private": false,
 	"description": "SvelteKit session client for cookie-backed refresh sessions and in-memory access tokens",
 	"keywords": [
@@ -11,14 +11,13 @@
 		"jwt",
 		"refresh-token"
 	],
-	"homepage": "https://github.com/Reginleif-Web/SvelteSession/tree/main/SvelteSession#readme",
+	"homepage": "https://github.com/Reginleif-Web/svelte-session#readme",
 	"bugs": {
-		"url": "https://github.com/Reginleif-Web/SvelteSession/issues"
+		"url": "https://github.com/Reginleif-Web/svelte-session/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Reginleif-Web/SvelteSession.git",
-		"directory": "SvelteSession"
+		"url": "git+https://github.com/Reginleif-Web/svelte-session.git"
 	},
 	"license": "ISC",
 	"author": "Reginleif Web",
