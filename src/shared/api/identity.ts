@@ -73,6 +73,12 @@ export async function identityRefresh(
 	cookieHeader?: string
 ): Promise<{ result: RefreshResult; setCookies: string[] }> {
 	const { paths } = getAuthConfig();
+	if (!paths.refresh) {
+		return {
+			result: requestFailed<RefreshResult>('refresh_not_configured', 'Refresh endpoint is not configured'),
+			setCookies: []
+		};
+	}
 	const headers: HeadersInit = {};
 	if (cookieHeader) {
 		headers.cookie = cookieHeader;

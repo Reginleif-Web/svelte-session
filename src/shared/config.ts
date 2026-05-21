@@ -1,6 +1,6 @@
 export type AuthPaths = {
 	auth: string;
-	refresh: string;
+	refresh?: string;
 	session: string;
 	check: string;
 	logout: string;

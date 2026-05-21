@@ -1,16 +1,16 @@
 # svelte-session
 
-SvelteKit session helpers for applications that use short-lived access tokens and a cookie-backed refresh session.
+SvelteKit session helpers for applications that use JWT access tokens, with optional refresh endpoint support.
 
 The package keeps the access token in memory, stores session state in Svelte 5 reactive state, and delegates durable session ownership to your backend through a small HTTP contract.
 
 ## Features
 
-- Svelte 5 `SessionProvider` for client hydration and session refresh.
+- Svelte 5 `SessionProvider` for client hydration and token lifecycle handling.
 - SvelteKit server helper for SSR session loading.
 - In-memory access token store, with no `localStorage` or `sessionStorage` persistence.
-- Configurable endpoint paths, cookie name, credentials mode, and refresh timing.
-- Backend-agnostic HTTP contract for auth, refresh, session introspection, token check, and logout.
+- Configurable endpoint paths, cookie name, credentials mode, and token lifecycle timing.
+- Backend-agnostic HTTP contract for auth, optional refresh, session introspection, token check, and logout.
 
 ## Install
 
@@ -26,31 +26,33 @@ npm install svelte
 
 ## Auth Model
 
-The package expects the backend to own the refresh session through an httpOnly cookie. The frontend receives short-lived access tokens and keeps them only in memory.
+The package works with one JWT strategy where refresh is optional. The frontend receives access tokens and keeps them only in memory.
 
-`svelte-session` deliberately does not validate passwords, sign JWTs, store refresh tokens, or decide cookie policy. Those responsibilities stay on your backend. The package only coordinates SvelteKit SSR, browser state, access-token refresh, and calls to your configured identity endpoints.
+`svelte-session` deliberately does not validate passwords, sign JWTs, store refresh tokens, or decide cookie policy. Those responsibilities stay on your backend. The package only coordinates SvelteKit SSR, browser state, token expiry handling, and calls to your configured identity endpoints.
 
-The two tokens have different jobs:
+Token responsibilities:
 
 - **Access token:** short-lived bearer token returned to the frontend. It is stored in memory and exposed through `getAccessToken()` and `getSession()`.
-- **Refresh session:** durable backend-owned session, usually represented by an httpOnly cookie. The package never reads the cookie in the browser; it only sends credentialed requests so the backend can read it.
+- **Refresh session (optional):** durable backend-owned session, usually represented by an httpOnly cookie. The package never reads the cookie in the browser; it only sends credentialed requests so the backend can read it.
 
 Typical flow:
 
 1. `signIn()` calls the configured `auth` endpoint.
-2. The backend sets a refresh-session cookie and returns an access token plus user data.
-3. `SessionProvider` hydrates client state from SSR data and schedules token refresh.
-4. `getServerSession()` calls the configured `session` endpoint during SSR. This endpoint should validate the cookie and return a fresh access token without rotating the refresh cookie.
-5. Client refresh calls the configured `refresh` endpoint, which may rotate the refresh cookie.
+2. The backend returns an access token plus user data.
+3. `SessionProvider` hydrates client state and schedules token refresh if `paths.refresh` is configured, otherwise schedules session termination at token expiry.
+4. `getServerSession()` calls the configured `session` endpoint during SSR.
+5. If configured, client refresh calls the configured `refresh` endpoint.
 6. `signOut()` calls the configured `logout` endpoint and clears client state.
 
-## Automatic Refresh
+## Token Lifecycle
 
-Yes, refresh is automatic after the client session is initialized.
+When `SessionProvider` mounts, it calls `initSession()`. If a valid hydrated access token is already present, the package schedules a timer.
 
-When `SessionProvider` mounts, it calls `initSession()`. If a valid hydrated access token is already present, the package schedules a timer. Otherwise it calls `refreshTokens()` immediately, which attempts to obtain a new access token through the configured `refresh` endpoint.
+If `paths.refresh` is configured, the timer performs refresh before expiry.
 
-Whenever a session is committed with an access token, the package schedules the next refresh for:
+If `paths.refresh` is not configured, the timer expires the in-memory session when the token lifetime is over.
+
+With refresh enabled, the package schedules the next refresh for:
 
 ```ts
 expiresInSec * 1000 - refreshBeforeExpiryMs
@@ -61,9 +63,9 @@ with a minimum delay of 5 seconds. With the default config, a 15-minute access t
 There are two important boundaries:
 
 - `getAccessToken()` is synchronous and does not perform network refresh by itself. Use `refresh()` or `refreshTokens()` before an API call if your own request layer needs to force a fresh token.
-- Timers can be delayed by browser tab suspension, sleep, or offline periods. When `refreshTokens()` runs after the access token has already expired, it falls back to the refresh-session cookie and asks the backend for a new access token.
+- Timers can be delayed by browser tab suspension, sleep, or offline periods.
 
-SSR uses the configured `session` endpoint, not the `refresh` endpoint. This avoids rotating the refresh cookie on every server-rendered request.
+If refresh is disabled, `refresh()` and `refreshTokens()` resolve the session to unauthorized when there is no valid in-memory token.
 
 ## SvelteKit Setup
 
@@ -77,7 +79,6 @@ const authConfig: AuthConfig = {
 	authUrl: 'http://localhost:3000',
 	paths: {
 		auth: '/api/identity/auth',
-		refresh: '/api/identity/refresh',
 		session: '/api/identity/session',
 		check: '/api/identity/check',
 		logout: '/api/identity/logout'
@@ -175,6 +176,17 @@ Use the client helpers:
 
 ## API
 
+### Module entrypoints
+
+```ts
+import { SessionProvider, signIn } from 'svelte-session';
+import { getServerSession } from 'svelte-session/server';
+import { createAuth } from 'svelte-session/core';
+import type { SessionUser } from 'svelte-session/types';
+```
+
+Internal source paths are not part of the public API and should not be imported directly.
+
 ### Client exports
 
 ```ts
@@ -215,7 +227,7 @@ type AuthConfig = {
 	authUrl: string;
 	paths: {
 		auth: string;
-		refresh: string;
+		refresh?: string;
 		session: string;
 		check: string;
 		logout: string;
@@ -282,11 +294,11 @@ type AuthResponseData = {
 };
 ```
 
-The backend should set the refresh-session cookie on success.
+If refresh is enabled, the backend should set the refresh-session cookie on success.
 
 ### `POST refresh`
 
-Used by the browser-side automatic refresh timer and by manual `refresh()` / `refreshTokens()` calls.
+Optional endpoint. Used by the browser-side automatic refresh timer and by manual `refresh()` / `refreshTokens()` calls when configured.
 
 Response data:
 
@@ -306,7 +318,7 @@ Response data:
 type SessionResponseData = AuthResponseData;
 ```
 
-This endpoint is used by SSR. It should validate the refresh-session cookie and return a short-lived access token without rotating the refresh cookie.
+This endpoint is used by SSR when your backend has a cookie session. It should validate the refresh-session cookie and return a short-lived access token without rotating the refresh cookie.
 
 ### `GET check`
 
@@ -355,7 +367,7 @@ The access token is also available through `getAccessToken()`. It returns the cu
 
 ## Cookies and CORS
 
-For browser requests, configure the backend to allow credentials and expose any headers required by your deployment. The refresh cookie should be httpOnly.
+For browser requests, configure the backend to allow credentials and expose any headers required by your deployment. If refresh is enabled, the refresh cookie should be httpOnly.
 
 For same-site deployments, `SameSite=Lax` is usually sufficient. For cross-site frontend/backend deployments, use `SameSite=None; Secure` and a compatible CORS policy.
 
