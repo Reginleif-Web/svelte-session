@@ -4,7 +4,7 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning where possible.
 
-## [1.0.2]
+## 1.0.2
 
 - Added optional `paths.refresh` support for pure JWT lifetime mode without refresh endpoint calls.
 - Updated session lifecycle to expire client session when refresh is not configured.
