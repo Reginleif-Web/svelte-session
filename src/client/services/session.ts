@@ -227,30 +227,3 @@ export function stopSessionAutoRecovery(): void {
 	document.removeEventListener('visibilitychange', recoveryVisibilityTrigger);
 	recoveryListenersAttached = false;
 }
-
-export function startSessionAutoRecovery(): void {
-	if (typeof window === 'undefined' || typeof document === 'undefined') {
-		return;
-	}
-	clearRecoveryInterval();
-	recoveryInterval = setInterval(recoveryTrigger, 15_000);
-	if (recoveryListenersAttached) {
-		return;
-	}
-	window.addEventListener('focus', recoveryTrigger);
-	document.addEventListener('visibilitychange', recoveryTrigger);
-	recoveryListenersAttached = true;
-}
-
-export function stopSessionAutoRecovery(): void {
-	if (typeof window === 'undefined' || typeof document === 'undefined') {
-		return;
-	}
-	clearRecoveryInterval();
-	if (!recoveryListenersAttached) {
-		return;
-	}
-	window.removeEventListener('focus', recoveryTrigger);
-	document.removeEventListener('visibilitychange', recoveryTrigger);
-	recoveryListenersAttached = false;
-}
