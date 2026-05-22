@@ -21,4 +21,7 @@ jobs:
       - run: node -v && npm -v
       - run: npm ci
       - run: npm run ci
-      - run: npm publish --access public
+      - if: ${{ !github.event.release.prerelease }}
+        run: npm publish --access public --tag latest
+      - if: ${{ github.event.release.prerelease }}
+        run: npm publish --access public --tag next
