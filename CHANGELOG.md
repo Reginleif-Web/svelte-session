@@ -4,6 +4,9 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning where possible.
 
+# 1.0.4
+
+
 ## 1.0.3
 
 - fix imports to prevent error Unknown file extension ".svelte" for ....\node_modules\svelte-session\dist\client\provider\session-provider.svelte
