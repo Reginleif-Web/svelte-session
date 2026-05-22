@@ -9,8 +9,6 @@ import {
 } from '../client/services/session.js';
 import { getServerSession } from '../server/session/get-server-session.js';
 
-let initialized = false;
-
 export type Auth = {
 	signIn: typeof signIn;
 	signOut: typeof signOut;
@@ -22,10 +20,7 @@ export type Auth = {
 };
 
 export function createAuth(config: AuthConfig): Auth {
-	if (!initialized) {
-		initialized = true;
-		configureAuth(config);
-	}
+	configureAuth(config);
 	return {
 		signIn,
 		signOut,

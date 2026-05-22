@@ -9,6 +9,7 @@
 	export type ProviderSession = {
 		user: SessionUser | null;
 		accessToken: string | null;
+		accessTokenExpiresInSec?: number;
 	};
 
 	let {
@@ -27,7 +28,11 @@
 		hydrateSession(session?.user ?? null, session?.accessToken ?? null);
 
 		if (session?.accessToken && session?.user) {
-			setAccessToken(session.accessToken, getAuthConfig().session.defaultAccessTokenTtlSec);
+			const expiresInSec =
+				session.accessTokenExpiresInSec && session.accessTokenExpiresInSec > 0
+					? session.accessTokenExpiresInSec
+					: getAuthConfig().session.defaultAccessTokenTtlSec;
+			setAccessToken(session.accessToken, expiresInSec);
 		}
 	}
 
