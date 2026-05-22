@@ -14,5 +14,6 @@ export type ClientSession = {
 export type ServerSession = {
 	user: SessionUser | null;
 	accessToken: string | null;
+	accessTokenExpiresInSec: number;
 	setCookies: string[];
 };

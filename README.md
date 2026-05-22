@@ -62,7 +62,7 @@ with a minimum delay of 5 seconds. With the default config, a 15-minute access t
 
 There are two important boundaries:
 
-- `getAccessToken()` is synchronous and does not perform network refresh by itself. Use `refresh()` or `refreshTokens()` before an API call if your own request layer needs to force a fresh token.
+- `getAccessToken()` is synchronous and does not perform network refresh by itself.
 - Timers can be delayed by browser tab suspension, sleep, or offline periods.
 
 If refresh is disabled, `refresh()` and `refreshTokens()` resolve the session to unauthorized when there is no valid in-memory token.
@@ -110,6 +110,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	event.locals.user = session.user;
 	event.locals.accessToken = session.accessToken;
+	event.locals.accessTokenExpiresInSec = session.accessTokenExpiresInSec;
 
 	const response = await resolve(event);
 
@@ -131,7 +132,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	return {
 		session: {
 			user: locals.user,
-			accessToken: locals.accessToken
+			accessToken: locals.accessToken,
+			accessTokenExpiresInSec: locals.accessTokenExpiresInSec
 		}
 	};
 };
@@ -364,6 +366,8 @@ State meanings:
 - `unauthorized`: no valid session is available.
 
 The access token is also available through `getAccessToken()`. It returns the current in-memory token or `null`.
+
+If you pass SSR session data to `SessionProvider`, include `accessTokenExpiresInSec` from `getServerSession()` so the client keeps the real token TTL instead of fallback defaults.
 
 ## Cookies and CORS
 

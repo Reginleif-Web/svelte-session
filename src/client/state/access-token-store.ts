@@ -1,8 +1,8 @@
-let accessToken: string | null = null;
+let accessToken: string | null;
 let expiresAtMs = 0;
 
 export function getAccessToken(): string | null {
-	return accessToken;
+	return accessToken ?? null;
 }
 
 export function getAccessTokenExpiresInSec(): number {
