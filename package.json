@@ -1,6 +1,6 @@
 {
 	"name": "svelte-session",
-	"version": "1.0.2",
+	"version": "1.0.3-beta.0",
 	"private": false,
 	"description": "SvelteKit session client for cookie-backed refresh sessions and in-memory access tokens",
 	"keywords": [
@@ -29,11 +29,11 @@
 		"node": ">=20"
 	},
 	"types": "./dist/entrypoints/client.d.ts",
-	"svelte": "./src/entrypoints/client.ts",
+	"svelte": "./dist/entrypoints/client.js",
 	"exports": {
 		".": {
 			"types": "./dist/entrypoints/client.d.ts",
-			"svelte": "./src/entrypoints/client.ts",
+			"svelte": "./dist/entrypoints/client.js",
 			"import": "./dist/entrypoints/client.js",
 			"default": "./dist/entrypoints/client.js"
 		},
