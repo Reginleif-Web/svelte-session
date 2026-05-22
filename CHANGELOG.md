@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning where possible.
 
+## 1.0.3
+
+- fix imports to prevent error Unknown file extension ".svelte" for ....\node_modules\svelte-session\dist\client\provider\session-provider.svelte
+
 ## 1.0.2
 
 - Added optional `paths.refresh` support for pure JWT lifetime mode without refresh endpoint calls.
