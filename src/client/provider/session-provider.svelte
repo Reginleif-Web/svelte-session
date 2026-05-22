@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { configureAuth, getAuthConfig, type AuthConfig } from '../../shared/config.js';
-	import { initSession } from '../services/session.js';
+	import { initSession, startSessionAutoRecovery, stopSessionAutoRecovery } from '../services/session.js';
 	import { hydrateSession } from '../state/session-state.svelte.js';
 	import { setAccessToken } from '../state/access-token-store.js';
 	import type { SessionUser } from '../../shared/types.js';
@@ -38,6 +38,10 @@
 
 	onMount(() => {
 		void initSession();
+		startSessionAutoRecovery();
+		return () => {
+			stopSessionAutoRecovery();
+		};
 	});
 </script>
 

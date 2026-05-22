@@ -4,6 +4,7 @@ import { getAuthConfig } from '../../shared/config.js';
 import {
 	clearAccessToken,
 	getAccessTokenExpiresInSec,
+	isAccessTokenExpired,
 	setAccessToken
 } from '../state/access-token-store.js';
 import { loginClientSession, logoutClientSession, resolveClientSession } from './resolve-session.js';
@@ -11,11 +12,24 @@ import type { ResolvedSession } from './resolve-session.js';
 import { applySession, sessionState, setSessionLoading } from '../state/session-state.svelte.js';
 
 let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+let recoveryInterval: ReturnType<typeof setInterval> | null = null;
+let recoveryListenersAttached = false;
+let refreshInFlight: Promise<void> | null = null;
+const recoveryTrigger = () => {
+	void refreshIfNeeded();
+};
 
 function clearRefreshTimer(): void {
 	if (refreshTimer !== null) {
 		clearTimeout(refreshTimer);
 		refreshTimer = null;
+	}
+}
+
+function clearRecoveryInterval(): void {
+	if (recoveryInterval !== null) {
+		clearInterval(recoveryInterval);
+		recoveryInterval = null;
 	}
 }
 
@@ -54,16 +68,40 @@ function commitSession(resolved: ResolvedSession): void {
 	applySession(null, null);
 }
 
+async function refreshIfNeeded(): Promise<void> {
+	if (sessionState.status !== 'authorized') {
+		return;
+	}
+	if (!isAccessTokenExpired()) {
+		return;
+	}
+	const { paths } = getAuthConfig();
+	if (!paths.refresh) {
+		return;
+	}
+	await refreshTokens();
+}
+
 export function getSession(): ClientSession {
 	return sessionState;
 }
 
 export async function refreshTokens(): Promise<void> {
+	if (refreshInFlight) {
+		return refreshInFlight;
+	}
+	refreshInFlight = (async () => {
+		try {
+			const resolved = await resolveClientSession();
+			commitSession(resolved);
+		} catch {
+			commitSession({ user: null, accessToken: null, expiresInSec: 0 });
+		}
+	})();
 	try {
-		const resolved = await resolveClientSession();
-		commitSession(resolved);
-	} catch {
-		commitSession({ user: null, accessToken: null, expiresInSec: 0 });
+		await refreshInFlight;
+	} finally {
+		refreshInFlight = null;
 	}
 }
 
@@ -93,6 +131,7 @@ export async function signOut(): Promise<void> {
 	const { onAfterSignOut } = getAuthConfig();
 	setSessionLoading();
 	clearRefreshTimer();
+	clearRecoveryInterval();
 	await logoutClientSession();
 	commitSession({ user: null, accessToken: null, expiresInSec: 0 });
 	await onAfterSignOut?.();
@@ -113,4 +152,31 @@ export async function initSession(): Promise<void> {
 	}
 	setSessionLoading();
 	await refreshTokens();
+}
+
+export function startSessionAutoRecovery(): void {
+	if (typeof window === 'undefined' || typeof document === 'undefined') {
+		return;
+	}
+	clearRecoveryInterval();
+	recoveryInterval = setInterval(recoveryTrigger, 15_000);
+	if (recoveryListenersAttached) {
+		return;
+	}
+	window.addEventListener('focus', recoveryTrigger);
+	document.addEventListener('visibilitychange', recoveryTrigger);
+	recoveryListenersAttached = true;
+}
+
+export function stopSessionAutoRecovery(): void {
+	if (typeof window === 'undefined' || typeof document === 'undefined') {
+		return;
+	}
+	clearRecoveryInterval();
+	if (!recoveryListenersAttached) {
+		return;
+	}
+	window.removeEventListener('focus', recoveryTrigger);
+	document.removeEventListener('visibilitychange', recoveryTrigger);
+	recoveryListenersAttached = false;
 }
