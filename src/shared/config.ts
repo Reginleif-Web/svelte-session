@@ -44,7 +44,7 @@ const defaultSession: AuthSessionConfig = {
 	defaultAccessTokenTtlSec: 15 * 60
 };
 
-let resolvedConfig: ResolvedAuthConfig | null = null;
+let resolvedConfig: ResolvedAuthConfig | null;
 
 function mergeConfig(config: AuthConfig) {
 	return {
@@ -56,12 +56,16 @@ function mergeConfig(config: AuthConfig) {
 	};
 }
 
-export function configureAuth(config: AuthConfig): void {
+export function resolveAuthConfig(config: AuthConfig): ResolvedAuthConfig {
 	const authUrl = config.authUrl.trim().replace(/\/$/, '');
 	if (!authUrl) {
 		throw new Error('svelte-session: authUrl is required in config');
 	}
-	resolvedConfig = { ...mergeConfig(config), authUrl };
+	return { ...mergeConfig(config), authUrl };
+}
+
+export function configureAuth(config: AuthConfig): void {
+	resolvedConfig = resolveAuthConfig(config);
 }
 
 export function getAuthConfig(): ResolvedAuthConfig {

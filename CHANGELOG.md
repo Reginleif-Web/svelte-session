@@ -4,6 +4,16 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning where possible.
 
+## 1.0.4
+
+- Updated client refresh flow with `soft` and `hard` modes to avoid premature `unauthorized` during transient idle/network failures.
+- Fixed concurrent refresh mode escalation so a queued `hard` refresh is not downgraded by an in-flight `soft` refresh.
+- Fixed `initSession()` for hydrated-but-expired tokens: now it performs hard refresh (or resolves unauthorized when refresh is disabled) instead of exiting as authorized.
+- Updated SSR `getServerSession()` to use request-scoped resolved config instead of module-global config mutation.
+- Hardened server cookie detection by strict cookie-name matching.
+- Added `accessTokenExpiresInSec` to `ServerSession` and `SessionProvider` SSR hydration path to preserve real token TTL on the client.
+- Removed default `= null` initializers from nullable runtime vars in `src` and normalized null-safe reads/checks.
+
 ## 1.0.3
 
 - fix imports to prevent error Unknown file extension ".svelte" for ....\node_modules\svelte-session\dist\client\provider\session-provider.svelte

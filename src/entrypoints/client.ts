@@ -23,7 +23,13 @@ export type {
 	ResolvedAuthConfig
 } from '../shared/config.js';
 export { getAccessToken } from '../client/state/access-token-store.js';
-export { getSession, refresh, refreshTokens, signIn, signOut } from '../client/services/session.js';
+export {
+	getSession,
+	refresh,
+	refreshTokens,
+	signIn,
+	signOut
+} from '../client/services/session.js';
 export { default as SessionProvider } from '../client/provider/session-provider.svelte';
 export type { ProviderSession } from '../client/provider/session-provider.svelte';
 export type {

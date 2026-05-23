@@ -18,6 +18,7 @@ export type ResolvedSession = {
 	user: SessionUser | null;
 	accessToken: string | null;
 	expiresInSec: number;
+	errorCode?: string;
 };
 
 export async function resolveClientSession(): Promise<ResolvedSession> {
@@ -38,13 +39,32 @@ export async function resolveClientSession(): Promise<ResolvedSession> {
 	const { paths } = getAuthConfig();
 	if (!paths.refresh) {
 		clearAccessToken();
-		return { user: null, accessToken: null, expiresInSec: 0 };
+		return {
+			user: null,
+			accessToken: null,
+			expiresInSec: 0,
+			errorCode: 'refresh_not_configured'
+		};
 	}
 
 	const { result } = await identityRefresh();
-	if (!result.success || !result.data) {
+	if (!result.success) {
 		clearAccessToken();
-		return { user: null, accessToken: null, expiresInSec: 0 };
+		return {
+			user: null,
+			accessToken: null,
+			expiresInSec: 0,
+			errorCode: result.error.code
+		};
+	}
+	if (!result.data) {
+		clearAccessToken();
+		return {
+			user: null,
+			accessToken: null,
+			expiresInSec: 0,
+			errorCode: 'invalid_response'
+		};
 	}
 
 	setAccessToken(result.data.accessToken, result.data.expires);
