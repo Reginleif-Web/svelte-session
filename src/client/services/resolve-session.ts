@@ -28,7 +28,7 @@ export async function resolveClientSession(): Promise<ResolvedSession> {
 			const check = await identityCheck(token);
 			if (check.success && check.data) {
 				return {
-					user: { userId: check.data.userId, email: check.data.email },
+					user: check.data,
 					accessToken: token,
 					expiresInSec: 0
 				};
