@@ -4,6 +4,11 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning where possible.
 
+## 1.0.5-beta.0
+
+- Switched `AuthUser`, `CheckSessionResponseData`, `SessionUser`, `ClientSession`, and `ServerSession` to interfaces for module augmentation.
+- Removed fixed `{ userId, email }` remapping in check-session resolution to preserve extended user payload fields.
+
 ## 1.0.4
 
 - Updated client refresh flow with `soft` and `hard` modes to avoid premature `unauthorized` during transient idle/network failures.
